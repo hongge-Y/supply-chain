@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.dsscm.dao.BillMapper">
+
+    <select id="selectByPage" resultType="cn.dsscm.pojo.Bill">
+        SELECT id, billCode, productId, productName, productDesc, productUnit,
+        productCount, totalPrice, isPayment, createdBy, creationDate,
+        modifyBy, modifyDate, providerId, approvalStatus
+        FROM tb_bill
+        <where>
+            <if test="productName != null and productName != ''">
+                AND productName LIKE CONCAT('%', #{productName}, '%')
+            </if>
+            <if test="providerId != null">
+                AND providerId = #{providerId}
+            </if>
+            <if test="isPayment != null">
+                AND isPayment = #{isPayment}
+            </if>
+            <if test="createdBy != null">
+                AND createdBy = #{createdBy}
+            </if>
+        </where>
+        ORDER BY creationDate DESC
+        LIMIT #{start}, #{size}
+    </select>
+
+    <select id="selectCount" resultType="int">
+        SELECT COUNT(*) FROM tb_bill
+        <where>
+            <if test="productName != null and productName != ''">
+                AND productName LIKE CONCAT('%', #{productName}, '%')
+            </if>
+            <if test="providerId != null">
+                AND providerId = #{providerId}
+            </if>
+            <if test="isPayment != null">
+                AND isPayment = #{isPayment}
+            </if>
+            <if test="createdBy != null">
+                AND createdBy = #{createdBy}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" resultType="cn.dsscm.pojo.Bill">
+        SELECT * FROM tb_bill WHERE id = #{id}
+    </select>
+
+    <insert id="insertBill" parameterType="cn.dsscm.pojo.Bill"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_bill (billCode, productId, productName, productDesc,
+                             productUnit, productCount, totalPrice, isPayment,
+                             createdBy, creationDate, providerId, approvalStatus)
+        VALUES (#{billCode}, #{productId}, #{productName}, #{productDesc},
+                #{productUnit}, #{productCount}, #{totalPrice}, #{isPayment},
+                #{createdBy}, #{creationDate}, #{providerId}, #{approvalStatus})
+    </insert>
+
+    <update id="updateBill" parameterType="cn.dsscm.pojo.Bill">
+        UPDATE tb_bill
+        <set>
+            <if test="billCode != null">billCode = #{billCode},</if>
+            <if test="productId != null">productId = #{productId},</if>
+            <if test="productName != null">productName = #{productName},</if>
+            <if test="productDesc != null">productDesc = #{productDesc},</if>
+            <if test="productUnit != null">productUnit = #{productUnit},</if>
+            <if test="productCount != null">productCount = #{productCount},</if>
+            <if test="totalPrice != null">totalPrice = #{totalPrice},</if>
+            <if test="isPayment != null">isPayment = #{isPayment},</if>
+            <if test="providerId != null">providerId = #{providerId},</if>
+            <if test="approvalStatus != null">approvalStatus = #{approvalStatus},</if>
+            <if test="modifyBy != null">modifyBy = #{modifyBy},</if>
+            modifyDate = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateApprovalStatus">
+        UPDATE tb_bill SET approvalStatus = #{status}, modifyDate = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectPendingApprovals" resultType="cn.dsscm.pojo.Bill">
+        SELECT * FROM tb_bill WHERE approvalStatus = 1
+    </select>
+
+    <delete id="deleteBill">
+        DELETE FROM tb_bill WHERE id = #{id}
+    </delete>
+</mapper>

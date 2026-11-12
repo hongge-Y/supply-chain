@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.dsscm.dao.OrderMapper">
+
+    <select id="selectByPage" resultType="cn.dsscm.pojo.Order">
+        SELECT id, userName, customerPhone, userAddress, proCount, cost,
+        serialNumber, status, payType, createdBy, creationDate,
+        modifyBy, modifyDate, approvalStatus
+        FROM tb_order
+        <where>
+            <if test="userName != null and userName != ''">
+                AND userName LIKE CONCAT('%', #{userName}, '%')
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="createdBy != null">
+                AND createdBy = #{createdBy}
+            </if>
+        </where>
+        ORDER BY creationDate DESC
+        LIMIT #{start}, #{size}
+    </select>
+
+    <select id="selectCount" resultType="int">
+        SELECT COUNT(*) FROM tb_order
+        <where>
+            <if test="userName != null and userName != ''">
+                AND userName LIKE CONCAT('%', #{userName}, '%')
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="createdBy != null">
+                AND createdBy = #{createdBy}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" resultType="cn.dsscm.pojo.Order">
+        SELECT * FROM tb_order WHERE id = #{id}
+    </select>
+
+    <insert id="insertOrder" parameterType="cn.dsscm.pojo.Order"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_order (userName, customerPhone, userAddress, proCount,
+                              cost, serialNumber, status, payType,
+                              createdBy, creationDate, approvalStatus)
+        VALUES (#{userName}, #{customerPhone}, #{userAddress}, #{proCount},
+                #{cost}, #{serialNumber}, #{status}, #{payType},
+                #{createdBy}, #{creationDate}, #{approvalStatus})
+    </insert>
+
+    <update id="updateOrder" parameterType="cn.dsscm.pojo.Order">
+        UPDATE tb_order
+        <set>
+            <if test="userName != null">userName = #{userName},</if>
+            <if test="customerPhone != null">customerPhone = #{customerPhone},</if>
+            <if test="userAddress != null">userAddress = #{userAddress},</if>
+            <if test="proCount != null">proCount = #{proCount},</if>
+            <if test="cost != null">cost = #{cost},</if>
+            <if test="serialNumber != null">serialNumber = #{serialNumber},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="payType != null">payType = #{payType},</if>
+            <if test="approvalStatus != null">approvalStatus = #{approvalStatus},</if>
+            <if test="modifyBy != null">modifyBy = #{modifyBy},</if>
+            modifyDate = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateApprovalStatus">
+        UPDATE tb_order SET approvalStatus = #{status}, modifyDate = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectPendingApprovals" resultType="cn.dsscm.pojo.Order">
+        SELECT * FROM tb_order WHERE approvalStatus = 1
+    </select>
+
+    <delete id="deleteOrder">
+        DELETE FROM tb_order WHERE id = #{id}
+    </delete>
+</mapper>

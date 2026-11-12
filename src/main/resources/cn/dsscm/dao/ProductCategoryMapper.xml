@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.dsscm.dao.ProductCategoryMapper">
+
+    <select id="selectByParentId" resultType="cn.dsscm.pojo.ProductCategory">
+        SELECT id, name, parentId, type, iconClass
+        FROM tb_product_category
+        WHERE parentId = #{parentId}
+        ORDER BY id
+    </select>
+
+    <select id="selectAll" resultType="cn.dsscm.pojo.ProductCategory">
+        SELECT * FROM tb_product_category ORDER BY parentId, id
+    </select>
+
+    <select id="selectById" resultType="cn.dsscm.pojo.ProductCategory">
+        SELECT * FROM tb_product_category WHERE id = #{id}
+    </select>
+
+    <insert id="insertCategory" parameterType="cn.dsscm.pojo.ProductCategory"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_product_category (name, parentId, type, iconClass)
+        VALUES (#{name}, #{parentId}, #{type}, #{iconClass})
+    </insert>
+
+    <update id="updateCategory" parameterType="cn.dsscm.pojo.ProductCategory">
+        UPDATE tb_product_category
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="parentId != null">parentId = #{parentId},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="iconClass != null">iconClass = #{iconClass},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteCategory">
+        DELETE FROM tb_product_category WHERE id = #{id}
+    </delete>
+</mapper>

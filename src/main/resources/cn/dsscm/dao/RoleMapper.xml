@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.dsscm.dao.RoleMapper">
+
+    <select id="selectAll" resultType="cn.dsscm.pojo.Role">
+        SELECT id, roleCode, roleName, createdBy, creationDate, modifyBy, modifyDate
+        FROM tb_role
+        ORDER BY id
+    </select>
+
+    <select id="selectById" resultType="cn.dsscm.pojo.Role">
+        SELECT * FROM tb_role WHERE id = #{id}
+    </select>
+
+    <insert id="insertRole" parameterType="cn.dsscm.pojo.Role"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_role (roleCode, roleName, createdBy, creationDate)
+        VALUES (#{roleCode}, #{roleName}, #{createdBy}, #{creationDate})
+    </insert>
+
+    <update id="updateRole" parameterType="cn.dsscm.pojo.Role">
+        UPDATE tb_role
+        <set>
+            <if test="roleCode != null">roleCode = #{roleCode},</if>
+            <if test="roleName != null">roleName = #{roleName},</if>
+            <if test="modifyBy != null">modifyBy = #{modifyBy},</if>
+            modifyDate = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteRole">
+        DELETE FROM tb_role WHERE id = #{id}
+    </delete>
+</mapper>

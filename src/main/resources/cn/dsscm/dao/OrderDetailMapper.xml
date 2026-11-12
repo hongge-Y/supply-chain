@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.dsscm.dao.OrderDetailMapper">
+
+    <select id="selectByOrderId" resultType="cn.dsscm.pojo.OrderDetail">
+        SELECT id, orderId, productId, quantity, cost
+        FROM tb_order_detail
+        WHERE orderId = #{orderId}
+    </select>
+
+    <insert id="insertBatch">
+        INSERT INTO tb_order_detail (orderId, productId, quantity, cost)
+        VALUES
+        <foreach collection="details" item="item" separator=",">
+            (#{item.orderId}, #{item.productId}, #{item.quantity}, #{item.cost})
+        </foreach>
+    </insert>
+
+    <delete id="deleteByOrderId">
+        DELETE FROM tb_order_detail WHERE orderId = #{orderId}
+    </delete>
+</mapper>

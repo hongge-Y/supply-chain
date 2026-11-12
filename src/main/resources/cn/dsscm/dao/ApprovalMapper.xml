@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.dsscm.dao.ApprovalMapper">
+
+    <insert id="insert" parameterType="cn.dsscm.pojo.Approval"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_approval (module, action, recordId, applicantId,
+                                 applyReason, status, applyDate, detailJson)
+        VALUES (#{module}, #{action}, #{recordId}, #{applicantId},
+                #{applyReason}, 0, NOW(), #{detailJson})
+    </insert>
+
+    <select id="selectPending" resultType="cn.dsscm.pojo.Approval">
+        SELECT a.*, u.userName as applicantName
+        FROM tb_approval a
+        LEFT JOIN tb_user u ON a.applicantId = u.id
+        WHERE a.status = 0
+        ORDER BY a.applyDate DESC
+    </select>
+
+    <select id="selectByApplicant" resultType="cn.dsscm.pojo.Approval">
+        SELECT a.*, u.userName as applicantName
+        FROM tb_approval a
+        LEFT JOIN tb_user u ON a.applicantId = u.id
+        WHERE a.applicantId = #{applicantId}
+        ORDER BY a.applyDate DESC
+    </select>
+
+    <select id="selectById" resultType="cn.dsscm.pojo.Approval">
+        SELECT a.*, u.userName as applicantName
+        FROM tb_approval a
+        LEFT JOIN tb_user u ON a.applicantId = u.id
+        WHERE a.id = #{id}
+    </select>
+
+    <update id="updateStatus" parameterType="cn.dsscm.pojo.Approval">
+            UPDATE tb_approval SET status = #{status}, approverId = #{approverId},
+                                   approvalComment = #{approvalComment}, approvalDate = NOW()
+            WHERE id = #{id}
+        </update>
+
+        <update id="updateRecordId" parameterType="cn.dsscm.pojo.Approval">
+            UPDATE tb_approval SET recordId = #{recordId} WHERE id = #{id}
+        </update>
+
+</mapper>

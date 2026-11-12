@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.dsscm.dao.UserMapper">
+
+    <!-- 结果映射：数据库字段名与实体属性名不一致时可配置，此处一致则省略 -->
+
+    <!-- 登录查询 -->
+    <select id="selectByCodeAndPwd" resultType="cn.dsscm.pojo.User">
+        SELECT id, userCode, userName, userPassword, gender, birthday, email,
+               phone, address, userDesc, userRole, imgPath, status,
+               createdBy, creationDate, modifyBy, modifyDate
+        FROM tb_user
+        WHERE userCode = #{userCode}
+          AND userPassword = #{userPassword}
+    </select>
+
+    <!-- 条件分页查询 -->
+    <select id="selectByPage" resultType="cn.dsscm.pojo.User">
+        SELECT id, userCode, userName, userPassword, gender, birthday, email,
+        phone, address, userDesc, userRole, imgPath, status, registerReason,
+        createdBy, creationDate, modifyBy, modifyDate
+        FROM tb_user
+        <where>
+            <if test="userName != null and userName != ''">
+                AND userName LIKE CONCAT('%', #{userName}, '%')
+            </if>
+            <if test="roleId != null">
+                AND userRole = #{roleId}
+            </if>
+        </where>
+        ORDER BY creationDate DESC
+        LIMIT #{start}, #{size}
+    </select>
+
+    <!-- 统计总数 -->
+    <select id="selectCount" resultType="int">
+        SELECT COUNT(*)
+        FROM tb_user
+        <where>
+            <if test="userName != null and userName != ''">
+                AND userName LIKE CONCAT('%', #{userName}, '%')
+            </if>
+            <if test="roleId != null">
+                AND userRole = #{roleId}
+            </if>
+        </where>
+    </select>
+
+    <!-- 插入用户，自动生成主键并回填 -->
+    <insert id="insertUser" parameterType="cn.dsscm.pojo.User"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_user (
+            userCode, userName, userPassword, gender, birthday,
+            email, phone, address, userDesc, userRole, imgPath,
+            status, registerReason,
+            createdBy, creationDate
+        ) VALUES (
+                     #{userCode}, #{userName}, #{userPassword}, #{gender}, #{birthday},
+                     #{email}, #{phone}, #{address}, #{userDesc}, #{userRole}, #{imgPath},
+                     #{status}, #{registerReason},
+                     #{createdBy}, #{creationDate}
+                 )
+    </insert>
+
+    <!-- 动态更新用户 -->
+    <update id="updateUser" parameterType="cn.dsscm.pojo.User">
+        UPDATE tb_user
+        <set>
+            <if test="userCode != null">userCode = #{userCode},</if>
+            <if test="userName != null">userName = #{userName},</if>
+            <if test="userPassword != null">userPassword = #{userPassword},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="birthday != null">birthday = #{birthday},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="userDesc != null">userDesc = #{userDesc},</if>
+            <if test="userRole != null">userRole = #{userRole},</if>
+            <if test="imgPath != null">imgPath = #{imgPath},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="modifyBy != null">modifyBy = #{modifyBy},</if>
+            modifyDate = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除用户 -->
+    <delete id="deleteUser">
+        DELETE FROM tb_user WHERE id = #{id}
+    </delete>
+
+    <select id="selectByUserCode" resultType="cn.dsscm.pojo.User">
+        SELECT id, userCode, userName, userPassword, gender, birthday, email,
+               phone, address, userDesc, userRole, imgPath, status, registerReason,
+               createdBy, creationDate, modifyBy, modifyDate
+        FROM tb_user WHERE userCode = #{userCode}
+    </select>
+
+    <!-- 按ID查询（含全部字段） -->
+    <select id="selectById" resultType="cn.dsscm.pojo.User">
+        SELECT id, userCode, userName, userPassword, gender, birthday, email,
+               phone, address, userDesc, userRole, imgPath, status, registerReason,
+               createdBy, creationDate, modifyBy, modifyDate
+        FROM tb_user WHERE id = #{id}
+    </select>
+
+    <!-- 更新用户状态 -->
+    <update id="updateUserStatus">
+        UPDATE tb_user SET status = #{status}, modifyDate = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 查询待审核用户 -->
+    <select id="selectPendingUsers" resultType="cn.dsscm.pojo.User">
+        SELECT id, userCode, userName, userPassword, gender, birthday, email,
+               phone, address, userDesc, userRole, imgPath, status, registerReason,
+               createdBy, creationDate, modifyBy, modifyDate
+        FROM tb_user
+        WHERE status IS NULL OR status = 0 OR status = 3
+        ORDER BY creationDate DESC
+    </select>
+
+    <!-- 统计待审核用户数量 -->
+    <select id="selectPendingCount" resultType="int">
+        SELECT COUNT(*)
+        FROM tb_user
+        WHERE status IS NULL OR status = 0 OR status = 3
+    </select>
+</mapper>

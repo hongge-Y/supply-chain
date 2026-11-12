@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.dsscm.dao.NewsMapper">
+
+    <select id="selectByPage" resultType="cn.dsscm.pojo.News">
+        SELECT id, title, content, createdBy, creationDate, modifyBy, modifyDate, approvalStatus
+        FROM tb_news
+        <where>
+            <if test="title != null and title != ''">
+                AND title LIKE CONCAT('%', #{title}, '%')
+            </if>
+        </where>
+        ORDER BY creationDate DESC
+        LIMIT #{start}, #{size}
+    </select>
+
+    <select id="selectCount" resultType="int">
+        SELECT COUNT(*) FROM tb_news
+        <where>
+            <if test="title != null and title != ''">
+                AND title LIKE CONCAT('%', #{title}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" resultType="cn.dsscm.pojo.News">
+        SELECT * FROM tb_news WHERE id = #{id}
+    </select>
+
+    <insert id="insertNews" parameterType="cn.dsscm.pojo.News"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_news (title, content, createdBy, creationDate, approvalStatus)
+        VALUES (#{title}, #{content}, #{createdBy}, #{creationDate}, #{approvalStatus})
+    </insert>
+
+    <update id="updateNews" parameterType="cn.dsscm.pojo.News">
+        UPDATE tb_news
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="modifyBy != null">modifyBy = #{modifyBy},</if>
+            <if test="approvalStatus != null">approvalStatus = #{approvalStatus},</if>
+            modifyDate = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+    <delete id="deleteNews">
+        DELETE FROM tb_news WHERE id = #{id}
+    </delete>
+</mapper>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.dsscm.dao.ProductMapper">
+
+    <select id="selectByPage" resultType="cn.dsscm.pojo.Product">
+        SELECT id, name, description, price, placement, stock,
+        categoryLevel1Id, categoryLevel2Id, categoryLevel3Id,
+        fileName, isDelete, createdBy, creationDate, modifyBy, modifyDate,
+        approvalStatus
+        FROM tb_product
+        <where>
+            isDelete = 0
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="categoryLevel1Id != null">
+                AND categoryLevel1Id = #{categoryLevel1Id}
+            </if>
+            <if test="categoryLevel2Id != null">
+                AND categoryLevel2Id = #{categoryLevel2Id}
+            </if>
+            <if test="createdBy != null">
+                AND createdBy = #{createdBy}
+            </if>
+        </where>
+        ORDER BY creationDate DESC
+        LIMIT #{start}, #{size}
+    </select>
+
+    <select id="selectCount" resultType="int">
+        SELECT COUNT(*) FROM tb_product
+        <where>
+            isDelete = 0
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="categoryLevel1Id != null">
+                AND categoryLevel1Id = #{categoryLevel1Id}
+            </if>
+            <if test="categoryLevel2Id != null">
+                AND categoryLevel2Id = #{categoryLevel2Id}
+            </if>
+            <if test="createdBy != null">
+                AND createdBy = #{createdBy}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" resultType="cn.dsscm.pojo.Product">
+        SELECT * FROM tb_product WHERE id = #{id} AND isDelete = 0
+    </select>
+
+    <insert id="insertProduct" parameterType="cn.dsscm.pojo.Product"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_product (name, description, price, placement, stock,
+                                categoryLevel1Id, categoryLevel2Id, categoryLevel3Id,
+                                fileName, createdBy, creationDate, approvalStatus)
+        VALUES (#{name}, #{description}, #{price}, #{placement}, #{stock},
+                #{categoryLevel1Id}, #{categoryLevel2Id}, #{categoryLevel3Id},
+                #{fileName}, #{createdBy}, #{creationDate}, #{approvalStatus})
+    </insert>
+
+    <update id="updateProduct" parameterType="cn.dsscm.pojo.Product">
+        UPDATE tb_product
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="placement != null">placement = #{placement},</if>
+            <if test="stock != null">stock = #{stock},</if>
+            <if test="categoryLevel1Id != null">categoryLevel1Id = #{categoryLevel1Id},</if>
+            <if test="categoryLevel2Id != null">categoryLevel2Id = #{categoryLevel2Id},</if>
+            <if test="categoryLevel3Id != null">categoryLevel3Id = #{categoryLevel3Id},</if>
+            <if test="fileName != null">fileName = #{fileName},</if>
+            <if test="approvalStatus != null">approvalStatus = #{approvalStatus},</if>
+            <if test="modifyBy != null">modifyBy = #{modifyBy},</if>
+            modifyDate = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateApprovalStatus">
+        UPDATE tb_product SET approvalStatus = #{status}, modifyDate = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectPendingApprovals" resultType="cn.dsscm.pojo.Product">
+        SELECT * FROM tb_product WHERE approvalStatus = 1 AND isDelete = 0
+    </select>
+
+    <!-- 物理删除（实际项目中建议使用逻辑删除，将 isDelete 置为 1） -->
+    <delete id="deleteProduct">
+        DELETE FROM tb_product WHERE id = #{id}
+    </delete>
+</mapper>

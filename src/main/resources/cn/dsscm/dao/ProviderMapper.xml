@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.dsscm.dao.ProviderMapper">
+
+    <select id="selectByPage" resultType="cn.dsscm.pojo.Provider">
+        SELECT id, proCode, proName, proDesc, proContact, proPhone,
+        proAddress, proFax, createdBy, creationDate, modifyDate,
+        modifyBy, companyLicPicPath, orgCodePicPath, approvalStatus
+        FROM tb_provider
+        <where>
+            <if test="proCode != null and proCode != ''">
+                AND proCode LIKE CONCAT('%', #{proCode}, '%')
+            </if>
+            <if test="proName != null and proName != ''">
+                AND proName LIKE CONCAT('%', #{proName}, '%')
+            </if>
+            <if test="createdBy != null">
+                AND createdBy = #{createdBy}
+            </if>
+        </where>
+        ORDER BY creationDate DESC
+        LIMIT #{start}, #{size}
+    </select>
+
+    <select id="selectCount" resultType="int">
+        SELECT COUNT(*) FROM tb_provider
+        <where>
+            <if test="proCode != null and proCode != ''">
+                AND proCode LIKE CONCAT('%', #{proCode}, '%')
+            </if>
+            <if test="proName != null and proName != ''">
+                AND proName LIKE CONCAT('%', #{proName}, '%')
+            </if>
+            <if test="createdBy != null">
+                AND createdBy = #{createdBy}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" resultType="cn.dsscm.pojo.Provider">
+        SELECT * FROM tb_provider WHERE id = #{id}
+    </select>
+
+    <insert id="insertProvider" parameterType="cn.dsscm.pojo.Provider"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_provider (proCode, proName, proDesc, proContact,
+                                 proPhone, proAddress, proFax, createdBy,
+                                 creationDate, companyLicPicPath, orgCodePicPath,
+                                 approvalStatus)
+        VALUES (#{proCode}, #{proName}, #{proDesc}, #{proContact},
+                #{proPhone}, #{proAddress}, #{proFax}, #{createdBy},
+                #{creationDate}, #{companyLicPicPath}, #{orgCodePicPath},
+                #{approvalStatus})
+    </insert>
+
+    <update id="updateProvider" parameterType="cn.dsscm.pojo.Provider">
+        UPDATE tb_provider
+        <set>
+            <if test="proCode != null">proCode = #{proCode},</if>
+            <if test="proName != null">proName = #{proName},</if>
+            <if test="proDesc != null">proDesc = #{proDesc},</if>
+            <if test="proContact != null">proContact = #{proContact},</if>
+            <if test="proPhone != null">proPhone = #{proPhone},</if>
+            <if test="proAddress != null">proAddress = #{proAddress},</if>
+            <if test="proFax != null">proFax = #{proFax},</if>
+            <if test="companyLicPicPath != null">companyLicPicPath = #{companyLicPicPath},</if>
+            <if test="orgCodePicPath != null">orgCodePicPath = #{orgCodePicPath},</if>
+            <if test="approvalStatus != null">approvalStatus = #{approvalStatus},</if>
+            <if test="modifyBy != null">modifyBy = #{modifyBy},</if>
+            modifyDate = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateApprovalStatus">
+        UPDATE tb_provider SET approvalStatus = #{status}, modifyDate = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectPendingApprovals" resultType="cn.dsscm.pojo.Provider">
+        SELECT * FROM tb_provider WHERE approvalStatus = 1
+    </select>
+
+    <delete id="deleteProvider">
+        DELETE FROM tb_provider WHERE id = #{id}
+    </delete>
+</mapper>
